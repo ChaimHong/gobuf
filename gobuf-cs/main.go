@@ -26,6 +26,14 @@ func main() {
 	o.Writef("using System;")
 	o.Writef("using System.Collections.Generic;")
 
+	for _, e := range doc.Enums {
+		o.Writef("public class  %s {", e.Name)
+		for _, v := range e.Values {
+			o.Writef("public const sbyte %s = %s;", v.Name, v.Value)
+		}
+		o.Writef("}")
+	}
+
 	for _, s := range doc.Structs {
 		o.Writef("class %s {", s.Name)
 

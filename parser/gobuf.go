@@ -79,3 +79,14 @@ func Parse(filename string) (*Doc, error) {
 	}
 	return analyzeFile(file)
 }
+
+func ParseData(packageName string, constants []*types.Const, structs map[string]*types.Struct) (*Doc, error) {
+	f := &file{
+		Name:    "",
+		Package: "",
+		Consts:  "",
+		Structs: "",
+	}
+
+	return analyzeFile(f)
+}
