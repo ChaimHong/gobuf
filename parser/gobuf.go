@@ -1,5 +1,10 @@
 package parser
 
+import (
+	"go/types"
+	"log"
+)
+
 const (
 	INT     = "Int"
 	UINT    = "Uint"
@@ -82,11 +87,13 @@ func Parse(filename string) (*Doc, error) {
 
 func ParseData(packageName string, constants []*types.Const, structs map[string]*types.Struct) (*Doc, error) {
 	f := &file{
-		Name:    "",
-		Package: "",
-		Consts:  "",
-		Structs: "",
+		Name:    packageName,
+		Package: packageName,
+		Consts:  constants,
+		Structs: structs,
 	}
+
+	log.Printf("parser %v %v %v", f.Name, f.Package, packageName)
 
 	return analyzeFile(f)
 }

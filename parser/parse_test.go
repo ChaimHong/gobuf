@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+	"github.com/funny/debug"
 	"go/ast"
 	"go/importer"
 	"go/parser"
@@ -113,4 +115,65 @@ type CompositeTypes struct {
 	for name, c := range consts {
 		t.Log(name, c.Type().String(), c.Type().Underlying().String(), c.Val().String())
 	}
+}
+
+func TestStructArray(t *testing.T) {
+	src := `
+package main
+
+type CINT int
+type B struct {
+	f1 CINT
+}
+
+`
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "", src, parser.ParseComments)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conf := types.Config{Importer: importer.Default()}
+	pkg, err := conf.Check("", fset, []*ast.File{f}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	structs := scanStructs(f, pkg)
+
+	fmt.Printf("%s", debug.Dump(debug.DumpStyle{Format: true, Indent: " "}, "TestStructArray", structs))
+
+}
+
+func TestConsts(t *testing.T) {
+	src := `
+package main
+
+type CINT int
+
+const (
+	CINT_A CINT = 0
+	CINT_B CINT = 999
+
+	INT_A int = 0
+	INT_B int = 0
+)
+
+`
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "", src, parser.ParseComments)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conf := types.Config{Importer: importer.Default()}
+	pkg, err := conf.Check("", fset, []*ast.File{f}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	consts := scanConsts(f, pkg)
+
+	fmt.Printf("%s", debug.Dump(debug.DumpStyle{Format: true, Indent: " "}, "TestConsts", consts))
+
 }
