@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/funny/gobuf/parser"
+	"github.com/ChaimHong/gobuf/parser"
 
 	"encoding/json"
 	"flag"

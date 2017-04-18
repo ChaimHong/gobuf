@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func Gen(jsonData []byte) ([]byte, error) {
+func Gen(jsonData []byte, className string) ([]byte, error) {
 	var doc parser.Doc
 
 	if err := json.Unmarshal(jsonData, &doc); err != nil {
@@ -22,9 +22,11 @@ func Gen(jsonData []byte) ([]byte, error) {
 	o.Writef("using System;")
 	o.Writef("using System.Collections.Generic;")
 	o.Writef("using System.IO;")
+	o.Writef("namespace CsNetwork{")
+	o.Writef("public class %s{", className)
 
 	for _, e := range doc.Enums {
-		o.Writef("enum %s : %s{", e.Name, e.Kind)
+		o.Writef("public enum %s : %s{", e.Name, typeNameByDocKind(e.Kind))
 		for _, v := range e.Values {
 			o.Writef("%s = %s,", v.Name, v.Value)
 		}
@@ -32,7 +34,7 @@ func Gen(jsonData []byte) ([]byte, error) {
 	}
 
 	for _, s := range doc.Structs {
-		o.Writef("class %s {", s.Name)
+		o.Writef("public class %s : IProtoObject {", s.Name)
 
 		for _, field := range s.Fields {
 			if field.Type.Kind == parser.ARRAY {
@@ -76,15 +78,10 @@ func Gen(jsonData []byte) ([]byte, error) {
 		o.Writef("return n;")
 		o.Writef("}")
 
-		o.Writef("public void UnmarshalReader(BinaryReader reader) {")
-		for _, field := range s.Fields {
-			genUnmarshaler(&o, "this."+field.Name, field.Type, 1)
-		}
-		o.Writef("return ;")
-		o.Writef("}")
-
 		o.Writef("}")
 	}
+	o.Writef("}")
+	o.Writef("}")
 
 	return o.Bytes(), nil
 
@@ -122,6 +119,7 @@ func typeName(t *parser.Type) string {
 	if t.Name != "" {
 		return t.Name
 	}
+
 	switch t.Kind {
 	case parser.INT:
 		return "long"
@@ -168,6 +166,44 @@ func typeName(t *parser.Type) string {
 			return fmt.Sprintf("%s[]", typeName(t.Elem))
 		}
 		return fmt.Sprintf("List<%s>", typeName(t.Elem))
+	default:
+		panic("do not support this kind")
+	}
+	return ""
+}
+
+func typeNameByDocKind(kind string) string {
+	switch kind {
+	case parser.INT:
+		return "long"
+	case parser.UINT:
+		return "ulong"
+	case parser.INT8:
+		return "sbyte"
+	case parser.UINT8:
+		return "byte"
+	case parser.INT16:
+		return "short"
+	case parser.UINT16:
+		return "ushort"
+	case parser.INT32:
+		return "int"
+	case parser.UINT32:
+		return "uint"
+	case parser.INT64:
+		return "long"
+	case parser.UINT64:
+		return "ulong"
+	case parser.FLOAT32:
+		return "float"
+	case parser.FLOAT64:
+		return "double"
+	case parser.STRING:
+		return "string"
+	case parser.BYTES:
+		return "byte[]"
+	case parser.BOOL:
+		return "bool"
 	default:
 		panic("do not support this kind")
 	}

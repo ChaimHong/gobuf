@@ -45,9 +45,9 @@ func Gen(jsonData []byte) ([]byte, error) {
 
 		o.Writef("func (s *%s) Unmarshal(b []byte) int {", s.Name)
 		o.Writef("var n int")
-		// for _, field := range s.Fields {
-		// 	genUnmarshaler(&o, "s."+field.Name, field.Type, 1)
-		// }
+		for _, field := range s.Fields {
+			genUnmarshaler(&o, "s."+field.Name, field.Type, 1)
+		}
 		o.Writef("return n")
 		o.Writef("}\n")
 	}

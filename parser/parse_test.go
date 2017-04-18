@@ -177,3 +177,12 @@ const (
 	fmt.Printf("%s", debug.Dump(debug.DumpStyle{Format: true, Indent: " "}, "TestConsts", consts))
 
 }
+
+func TestParserData(t *testing.T) {
+	consts := []*types.Const{}
+	structs := map[string]*types.Struct{}
+	doc, err := ParseData("abc", consts, structs)
+
+	jsondata, _ := json.MarshalIndent(doc, "", " ")
+	fmt.Printf("%s %v", jsondata, err)
+}
