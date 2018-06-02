@@ -7,10 +7,18 @@ import (
 
 	"github.com/ChaimHong/gobuf/parser"
 
+<<<<<<< HEAD
 	"strings"
 )
 
 func Gen(jsonData []byte, className string) ([]byte, error) {
+=======
+	"sort"
+	"strings"
+)
+
+func Gen(jsonData []byte, className, headerComment string) ([]byte, error) {
+>>>>>>> fix
 	var doc parser.Doc
 
 	if err := json.Unmarshal(jsonData, &doc); err != nil {
@@ -19,12 +27,24 @@ func Gen(jsonData []byte, className string) ([]byte, error) {
 
 	var o writer
 
+<<<<<<< HEAD
+=======
+	o.Writef(`/* Automatically Generate`)
+	o.Writef(`由脚本生成，不要手动修改`)
+	o.Writef(headerComment)
+	o.Writef(`*/`)
+>>>>>>> fix
 	o.Writef("using System;")
 	o.Writef("using System.Collections.Generic;")
 	o.Writef("using System.IO;")
 	o.Writef("namespace CsNetwork{")
 	o.Writef("public class %s{", className)
 
+<<<<<<< HEAD
+=======
+	sort.Sort(sortEnumsByName(doc.Enums))
+
+>>>>>>> fix
 	for _, e := range doc.Enums {
 		o.Writef("public enum %s : %s{", e.Name, typeNameByDocKind(e.Kind))
 		for _, v := range e.Values {
@@ -33,6 +53,11 @@ func Gen(jsonData []byte, className string) ([]byte, error) {
 		o.Writef("}")
 	}
 
+<<<<<<< HEAD
+=======
+	sort.Sort(sortStructsByName(doc.Structs))
+
+>>>>>>> fix
 	for _, s := range doc.Structs {
 		o.Writef("public class %s : IProtoObject {", s.Name)
 
@@ -117,7 +142,12 @@ func isNullable(t *parser.Type) bool {
 
 func typeName(t *parser.Type) string {
 	if t.Name != "" {
+<<<<<<< HEAD
 		return t.Name
+=======
+		nameInfo := strings.Split(t.Name, ".")
+		return nameInfo[len(nameInfo)-1]
+>>>>>>> fix
 	}
 
 	switch t.Kind {
@@ -148,7 +178,11 @@ func typeName(t *parser.Type) string {
 	case parser.STRING:
 		return "string"
 	case parser.BYTES:
+<<<<<<< HEAD
 		return "byte[]"
+=======
+		return "string"
+>>>>>>> fix
 	case parser.BOOL:
 		return "bool"
 	case parser.MAP:
@@ -201,7 +235,11 @@ func typeNameByDocKind(kind string) string {
 	case parser.STRING:
 		return "string"
 	case parser.BYTES:
+<<<<<<< HEAD
 		return "byte[]"
+=======
+		return "string"
+>>>>>>> fix
 	case parser.BOOL:
 		return "bool"
 	default:
@@ -209,3 +247,18 @@ func typeNameByDocKind(kind string) string {
 	}
 	return ""
 }
+<<<<<<< HEAD
+=======
+
+type sortEnumsByName []*parser.Enum
+
+func (a sortEnumsByName) Len() int           { return len(a) }
+func (a sortEnumsByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a sortEnumsByName) Less(i, j int) bool { return a[i].Name > a[j].Name }
+
+type sortStructsByName []*parser.Struct
+
+func (a sortStructsByName) Len() int           { return len(a) }
+func (a sortStructsByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a sortStructsByName) Less(i, j int) bool { return a[i].Name > a[j].Name }
+>>>>>>> fix

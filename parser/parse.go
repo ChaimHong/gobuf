@@ -11,10 +11,11 @@ import (
 )
 
 type file struct {
-	Name    string
-	Package string
-	Consts  []*types.Const
-	Structs map[string]*types.Struct
+	Name     string
+	Package  string
+	Consts   []*types.Const
+	Structs  map[string]*types.Struct
+	OtherPkg []string
 }
 
 func parseFile(name string) (*file, error) {

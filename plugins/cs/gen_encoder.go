@@ -83,7 +83,11 @@ func genScalarMarshaler(o *writer, name string, t *parser.Type) {
 	case parser.FLOAT64:
 		o.Writef("Gobuf.WriteFloat64(%s, b, ref n);", name)
 	case parser.BYTES:
+<<<<<<< HEAD
 		o.Writef("Gobuf.WriteBytes(%s, b, ref n);", name)
+=======
+		o.Writef("Gobuf.WriteString( %s, b, ref n);", name)
+>>>>>>> fix
 	case parser.STRING:
 		o.Writef("Gobuf.WriteString(%s, b, ref n);", name)
 	case parser.STRUCT:

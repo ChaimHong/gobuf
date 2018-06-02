@@ -91,7 +91,12 @@ func genScalarUnmarshaler(o *writer, name string, t *parser.Type) {
 	case parser.FLOAT64:
 		o.Writef("%s = Gobuf.ReadFloat64(b, ref n);", name)
 	case parser.BYTES:
+<<<<<<< HEAD
 		o.Writef("%s = Gobuf.ReadBytes(b, ref n);", name)
+=======
+		o.Writef("%s = System.Text.Encoding.UTF8.GetString ( Gobuf.ReadBytes(b, ref n) ) ;", name)
+		// o.Writef("%s = Gobuf.ReadString(b, ref n);", name)
+>>>>>>> fix
 	case parser.STRING:
 		o.Writef("%s = Gobuf.ReadString(b, ref n);", name)
 	case parser.STRUCT:

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"go/types"
-	"log"
 )
 
 const (
@@ -28,10 +27,11 @@ const (
 )
 
 type Doc struct {
-	File    string
-	Package string
-	Enums   []*Enum
-	Structs []*Struct
+	File     string
+	Package  string
+	Enums    []*Enum
+	Structs  []*Struct
+	OtherPkg []string
 }
 
 type Enum struct {
@@ -85,15 +85,14 @@ func Parse(filename string) (*Doc, error) {
 	return analyzeFile(file)
 }
 
-func ParseData(packageName string, constants []*types.Const, structs map[string]*types.Struct) (*Doc, error) {
+func ParseData(packageName string, constants []*types.Const, structs map[string]*types.Struct, otherPkg []string) (*Doc, error) {
 	f := &file{
-		Name:    packageName,
-		Package: packageName,
-		Consts:  constants,
-		Structs: structs,
+		Name:     packageName,
+		Package:  packageName,
+		Consts:   constants,
+		Structs:  structs,
+		OtherPkg: otherPkg,
 	}
-
-	log.Printf("parser %v %v %v", f.Name, f.Package, packageName)
 
 	return analyzeFile(f)
 }

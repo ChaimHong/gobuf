@@ -13,10 +13,13 @@ func analyzeFile(f *file) (*Doc, error) {
 		if curEnum == nil || c.Type().String() != curEnum.Name {
 			t, ok := c.Type().Underlying().(*types.Basic)
 			if !ok {
-				return nil, fmt.Errorf("gobuf: unsupported const type \"%s\"", c.Type())
+				return nil, fmt.Errorf("gobuf: unsupported const basic type \"%s\"", c.Type())
 			}
 
-			kind := kindOfType(t)
+			kindOk, kind := kindOfType(t)
+			if !kindOk && kind != "" {
+				continue
+			}
 			if kind == "" {
 				return nil, fmt.Errorf("gobuf: unsupported const type \"%s\"", c.Type())
 			}
@@ -54,7 +57,7 @@ func analyzeFile(f *file) (*Doc, error) {
 		}
 	}
 
-	return &Doc{f.Name, f.Package, enums, structs}, nil
+	return &Doc{f.Name, f.Package, enums, structs, f.OtherPkg}, nil
 }
 
 func analyzeType(t types.Type) *Type {
@@ -132,7 +135,7 @@ func analyzePointer(t types.Type) *Type {
 func analyzeScalar(t types.Type) *Type {
 	name, t2 := analyzeNamed(t)
 	if basic, ok := t2.(*types.Basic); ok {
-		kind := kindOfType(basic)
+		_, kind := kindOfType(basic)
 		if kind != "" {
 			return &Type{Kind: kind, Name: name}
 		}
@@ -143,36 +146,40 @@ func analyzeScalar(t types.Type) *Type {
 	return nil
 }
 
-func kindOfType(t *types.Basic) string {
+func kindOfType(t *types.Basic) (bool, string) {
 	switch t.Kind() {
 	case types.Int:
-		return INT
+		return true, INT
 	case types.Uint:
-		return UINT
+		return true, UINT
 	case types.Int8:
-		return INT8
+		return true, INT8
 	case types.Uint8:
-		return UINT8
+		return true, UINT8
 	case types.Int16:
-		return INT16
+		return true, INT16
 	case types.Uint16:
-		return UINT16
+		return true, UINT16
 	case types.Int32:
-		return INT32
+		return true, INT32
 	case types.Uint32:
-		return UINT32
+		return true, UINT32
 	case types.Int64:
-		return INT64
+		return true, INT64
 	case types.Uint64:
-		return UINT64
+		return true, UINT64
 	case types.Float32:
-		return FLOAT32
+		return true, FLOAT32
 	case types.Float64:
-		return FLOAT64
+		return true, FLOAT64
 	case types.String:
-		return STRING
+		return true, STRING
 	case types.Bool:
-		return BOOL
+		return true, BOOL
+	case types.UntypedInt:
+		return false, INT
+	case types.UntypedString:
+		return false, STRING
 	}
-	return ""
+	return false, ""
 }
