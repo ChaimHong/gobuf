@@ -64,7 +64,7 @@ func genPointerUnmarshaler(o *writer, name string, t *parser.Type, n int) bool {
 		o.Writef("if b[n] != 0 {")
 		o.Writef("	n += 1")
 		o.Writef("	val%d := new(%s)", n, typeName(t.Elem))
-		genScalarUnmarshaler(o, fmt.Sprintf("*val%d", n), t.Elem)
+		genUnmarshaler(o, fmt.Sprintf("*val%d", n), t.Elem, n+1)
 		o.Writef("	%s = val%d", name, n)
 		o.Writef("} else {")
 		o.Writef("	n += 1")
@@ -134,5 +134,7 @@ func genScalarUnmarshaler(o *writer, name string, t *parser.Type) {
 			name = name[1:]
 		}
 		o.Writef("n += %s.Unmarshal(b[n:])", name)
+	default:
+		panic(fmt.Sprintf("unsupport gen this scalar %v", t.Kind))
 	}
 }

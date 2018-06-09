@@ -24,6 +24,7 @@ const (
 	STRING  = "String"
 	POINTER = "Pointer"
 	STRUCT  = "Struct"
+	NAMED   = "NAMED"
 )
 
 type Doc struct {
@@ -64,6 +65,9 @@ type Type struct {
 }
 
 func (t *Type) Size() int {
+	if t == nil {
+		return 0
+	}
 	switch t.Kind {
 	case INT8, UINT8, BOOL:
 		return 1

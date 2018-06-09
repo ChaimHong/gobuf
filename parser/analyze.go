@@ -86,7 +86,8 @@ func analyzeNamed(t types.Type) (string, types.Type) {
 	return "", t
 }
 
-func analyzeArray(t types.Type) *Type {
+func analyzeArray(t2 types.Type) *Type {
+	name, t := analyzeNamed(t2)
 	_, isArray := t.(*types.Array)
 	_, isSlice := t.(*types.Slice)
 
@@ -104,10 +105,10 @@ func analyzeArray(t types.Type) *Type {
 
 			elem := analyzeType(array.Elem())
 			if elem.Kind == UINT8 {
-				return &Type{Kind: BYTES, Len: length}
+				return &Type{Kind: BYTES, Len: length, Name: name}
 			}
 
-			return &Type{Kind: ARRAY, Elem: elem, Len: length}
+			return &Type{Kind: ARRAY, Elem: elem, Len: length, Name: name}
 		}
 	}
 
@@ -127,22 +128,31 @@ func analyzeMap(t types.Type) *Type {
 
 func analyzePointer(t types.Type) *Type {
 	if pointer, ok := t.(*types.Pointer); ok {
-		return &Type{Kind: POINTER, Elem: analyzeScalar(pointer.Elem())}
+		if t := analyzeScalar(pointer.Elem()); t != nil {
+			return &Type{Kind: POINTER, Elem: t}
+		}
+
+		if t := analyzeArray(pointer.Elem()); t != nil {
+			return &Type{Kind: POINTER, Elem: t}
+		}
+
 	}
 	return nil
 }
 
 func analyzeScalar(t types.Type) *Type {
 	name, t2 := analyzeNamed(t)
-	if basic, ok := t2.(*types.Basic); ok {
+	switch t2.(type) {
+	case *types.Basic:
+		basic := t2.(*types.Basic)
 		_, kind := kindOfType(basic)
 		if kind != "" {
 			return &Type{Kind: kind, Name: name}
 		}
-	}
-	if _, ok := t2.(*types.Struct); ok {
+	case *types.Struct:
 		return &Type{Kind: STRUCT, Name: name}
 	}
+
 	return nil
 }
 
